@@ -24,9 +24,9 @@
 <br />
 
 <select class="form-control">
-    <option>Добавить в начало</option>
-    <option>Добавить в середину</option>
-    <option>Добавить в конец</option>
+    <option value="top">Добавить в начало</option>
+    <option value="middle">Добавить в середину</option>
+    <option value="bottom">Добавить в конец</option>
 </select>
 <button class="button btn btn-success btn-for-add-element">Нажать</button>
 <div id="container"></div>
@@ -37,17 +37,17 @@
     var count = 1;
     function addContent() {
         var divElement = document.createElement('div');
-        var container = document.querySelector("div#container")
+        var container = document.querySelector("div#container");
         switch(document.querySelector('.form-control').value){
-            case "Добавить в начало":
-                      container.insertBefore(divElement,container.firstChild);
+            case "top":
+                container.insertBefore(divElement,container.firstChild);
                 break;
-            case "Добавить в конец":
-                    container.insertBefore(divElement,null);
+            case "bottom":
+                container.appendChild(divElement);
                 break;
-            case "Добавить в середину":
-                    var count2 = container.childNodes.length;
-                 var count2 = count2 % 2==0 ? (count2/2) : (count2+1)/2;
+            case "middle":
+                var count2 = container.childNodes.length;
+                count2 = count2 % 2==0 ? (count2/2) : (count2+1)/2;
                 container.insertBefore(divElement,container.childNodes[count2]);
                 break;
 
@@ -66,42 +66,37 @@
 <br />
 
 
-<a href="#" class="button btn btn-success btn-for-move-circle">Поехали!</a>
+<a href="#" class="button btn btn-success btn-for-move-circle" onclick="return false;">Поехали!</a>
 <div class="play"></div>
 
 <script>
- var left = 0;
 var isCircleMove = false;
 var interval;
 document.querySelector('.btn-for-move-circle').addEventListener('click',moveCircle);
 function moveCircle(){
     var circle = document.querySelector('.play');
+    clearInterval(interval);
     if(isCircleMove){
-        clearInterval(interval);
-        isCircleMove = false;
-        interval = setInterval(function (){
-        if(left<0){
-          clearInterval(interval);
-        }else{
-            circle.style.left =left+'px';
-            left-=10;
-            var circleWidth = parseInt(getComputedStyle(circle).width);
-        }
-    },50); 
+        interval = getInterval(-1,function () {
+            isCircleMove = false;return parseInt(circle.offsetLeft)<0;},circle);
+
     }else{
-        clearInterval(interval);
-       interval = setInterval(function (){
-        isCircleMove = true;
-        var circleWidth = parseInt(getComputedStyle(circle).width);
-        left+=10;
-        if(document.documentElement.clientWidth-circleWidth<(left+circleWidth)){
-          clearInterval(interval);
-        }else{
-            circle.style.left =left+'px';
-        }
-        //console.log(left);
-    },50); 
+        interval = getInterval(1, function (){
+            var circleWidth = parseInt(getComputedStyle(circle).width);
+            isCircleMove = true;
+            return document.documentElement.clientWidth-circleWidth<(parseInt(circle.offsetLeft)+circleWidth);
+        },circle);
     }
+
+}
+function getInterval (side,compare,circle){
+    return setInterval(function (){
+        if(compare()){
+            clearInterval(interval);
+        }else{
+            circle.style.left =(parseInt(circle.offsetLeft)+side)+'px';
+        }
+    },5);
 }
 </script>
 
@@ -115,7 +110,7 @@ Alert должен плавно появляться в верхнем прав�
 <br />
 
 
-<input type="text" class="form-control">
+<input type="text" class="form-control text-for-message">
 
 <button class="button btn btn-success btn-for-add-message">Success</button>
 <button class="button btn btn-info btn-for-add-message">Info</button>
@@ -124,36 +119,103 @@ Alert должен плавно появляться в верхнем прав�
 
 
 <script>
-    var top1=10;
-    
+    function Messages(){
+        var top=10;
+        var count=0;
+        var marginBetweenMessage =10;
+        var messages=[];
+        this.addMessage = function(type,text){
+            var alertMessage = document.createElement('div');
+            alertMessage.className = type;
+            var b ='<a href="#" class="close m'+count+'" onclick="removeMessage(this)" title="close">&times;</a><strong></strong><p class="message-text">'+text+'</p>';
+            alertMessage.innerHTML = b;
+
+            alertMessage.style.top=top+'px';
+            document.body.appendChild(alertMessage);
+            var obj={
+                htmlElement:alertMessage,
+                height:alertMessage.offsetHeight
+            };
+            messages.push(obj);
+            deleteAfterTime(count,this);
+            count++;
+            top+=alertMessage.offsetHeight+marginBetweenMessage;
+        };
+        this.removeMessages = function (index){
+            document.body.removeChild(messages[index].htmlElement);
+            top-=messages[index].height+marginBetweenMessage;
+            for(var i = index+1; i < messages.length; i++) {
+                var preventTop = parseInt(messages[i].htmlElement.style.top);
+                messages[i].htmlElement.style.top = (preventTop - messages[index].height - marginBetweenMessage) + 'px';
+                //messages[i-1]=messages[i];
+            }
+            //messages.pop();
+            //count--;
+
+
+        }
+        var deleteAfterTime = function (index,context){
+            setTimeout(function (){
+                try{
+                    context.removeMessages(index);
+                }catch(e){
+                    console.log(e.message);
+                }
+            },3000);
+        }
+    }
+    var messageController = new Messages();
     var buttons = document.querySelectorAll('button.btn-for-add-message');
     for (var i = 0; i < buttons.length; i++) {
-      buttons[i].addEventListener('click',function  () {
-           var alertMessage = document.createElement('div');
-          var text = this.innerHTML;
-          alertMessage.className = 'alert '+ this.className.split(' ')[2].replace('btn','alert');
-          var b ='<a href="#" class="close" onclick="removeMessage(this)" title="close">&times;</a><strong>'+text+'</strong> '+document.querySelector('input.form-control').value;
-          alertMessage.innerHTML = b;
-          alertMessage.style.top=top1+'px';
-          top1+=60;
-          deleteAfterTime(alertMessage);
-          document.body.appendChild(alertMessage);
-      });
-      function removeMessage (el) {
+        buttons[i].addEventListener('click',function  () {
+            var type = 'alert alert-'+this.innerHTML.toLowerCase();
+            var text = document.querySelector('.text-for-message').value;
+            messageController.addMessage(type,text);
+        });
+    }
+    function removeMessage(element){
+        var messageNumber = element.className.split(' ').pop();
+        messageNumber = messageNumber.substr(1);
+        messageController.removeMessages(+messageNumber);
+
+    }
+    /*var top1=10;
+    var countOfMessage=0;
+    var heightOfMessage = 60;
+
+
+            deleteAfterTime(alertMessage);
+            document.body.appendChild(alertMessage);
+        });
+        function removeMessage (el) {
+            var number = el.parentElement.className.split(' ').pop();
+            number = number.substr(1);
             document.body.removeChild(el.parentElement);
-            top1-=60;
-      }
-    function deleteAfterTime (element){
-        setTimeout(function (){
-            try{
-                document.body.removeChild(element); 
-            }catch(e){
-                console.log(e.message);
+            top1-=heightOfMessage;
+            upMessage(number);
+        }
+        function deleteAfterTime (element){
+            setTimeout(function (){
+                try{
+                    document.body.removeChild(element);
+                }catch(e){
+                    console.log(e.message);
+                }
+                var number = element.className.split(' ').pop();
+                number = number.substr(1);
+                upMessage(number);
+                top1-=heightOfMessage;
+
+            },10000);
+        }
+        function upMessage(number) {
+            var messages = document.querySelectorAll('.message');
+            for(var i = +number; i < messages.length; i++){
+                messages[i].style.top = (-heightOfMessage)+'px';
             }
-            top1-=60;
-        },10000);
-    }
-    }
+            countOfMessage--;
+        }
+    }*/
 </script>
     </li>
     <li>
@@ -161,33 +223,20 @@ Alert должен плавно появляться в верхнем прав�
 Сделать кнопочку <i class="text-info">scroll to top</i>, она должна появляться когда пользователь проскролил страницу на размер одного видимого экрана.
 Кнопочку нужно аккуратно стилизовать.
 </h4>
+        <button class="btn btn-success scroll-page" style="left: 1151px;" onclick="scrollPage()">↑</button>
 <br />
 <script>
     var scrolled;
     var intervalForScroll;
-    var isButtonAdd=false;
+    var buttonUp = document.querySelector('.scroll-page');
     window.onscroll = function () {
-        
-         scrolled = window.pageYOffset || document.documentElement.scrollTop;;
-        if(scrolled>document.documentElement.clientHeight/2){
-            if(!isButtonAdd){
-            var buttonUp = document.createElement('button');
-            buttonUp.className = 'btn btn-success scroll-page';
-            buttonUp.innerHTML = '↑';
-            buttonUp.style.left = document.documentElement.clientWidth -200+'px';
-            var  tasks = document.querySelector('.tasks');
-            tasks.insertBefore(buttonUp,document.querySelector('.task-5'));
-            isButtonAdd = true;
-            buttonUp.onclick = scrollPage;
-        }
+         scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        if(scrolled>window.innerHeight){
+                buttonUp.style.display='block';
+                buttonUp.style.top=window.innerHeigh/2+'px';
         }else{
-            if(isButtonAdd){
-                var tasks = document.querySelector('.tasks');
-                tasks.removeChild(document.querySelector('.scroll-page'));
-                isButtonAdd = false;
-            }
+            buttonUp.style.display='none';
         }
-        
     }
     function scrollPage () {
         clearInterval(intervalForScroll);
