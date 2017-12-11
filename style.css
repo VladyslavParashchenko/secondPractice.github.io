@@ -74,7 +74,9 @@
     width:64px;
     height:64px;
     position: fixed;
-    z-index:3;
+    top:400px;
+    display: none;
+    z-index:30;
 }
 .move{
     border:1px solid white;

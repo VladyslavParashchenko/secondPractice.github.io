@@ -129,7 +129,6 @@ Alert должен плавно появляться в верхнем прав�
             alertMessage.className = type;
             var b ='<a href="#" class="close m'+count+'" onclick="removeMessage(this)" title="close">&times;</a><strong></strong><p class="message-text">'+text+'</p>';
             alertMessage.innerHTML = b;
-
             alertMessage.style.top=top+'px';
             document.body.appendChild(alertMessage);
             var obj={
@@ -179,43 +178,6 @@ Alert должен плавно появляться в верхнем прав�
         messageController.removeMessages(+messageNumber);
 
     }
-    /*var top1=10;
-    var countOfMessage=0;
-    var heightOfMessage = 60;
-
-
-            deleteAfterTime(alertMessage);
-            document.body.appendChild(alertMessage);
-        });
-        function removeMessage (el) {
-            var number = el.parentElement.className.split(' ').pop();
-            number = number.substr(1);
-            document.body.removeChild(el.parentElement);
-            top1-=heightOfMessage;
-            upMessage(number);
-        }
-        function deleteAfterTime (element){
-            setTimeout(function (){
-                try{
-                    document.body.removeChild(element);
-                }catch(e){
-                    console.log(e.message);
-                }
-                var number = element.className.split(' ').pop();
-                number = number.substr(1);
-                upMessage(number);
-                top1-=heightOfMessage;
-
-            },10000);
-        }
-        function upMessage(number) {
-            var messages = document.querySelectorAll('.message');
-            for(var i = +number; i < messages.length; i++){
-                messages[i].style.top = (-heightOfMessage)+'px';
-            }
-            countOfMessage--;
-        }
-    }*/
 </script>
     </li>
     <li>
@@ -231,9 +193,8 @@ Alert должен плавно появляться в верхнем прав�
     var buttonUp = document.querySelector('.scroll-page');
     window.onscroll = function () {
          scrolled = window.pageYOffset || document.documentElement.scrollTop;
-        if(scrolled>window.innerHeight){
+        if(scrolled>=window.innerHeight){
                 buttonUp.style.display='block';
-                buttonUp.style.top=window.innerHeigh/2+'px';
         }else{
             buttonUp.style.display='none';
         }
