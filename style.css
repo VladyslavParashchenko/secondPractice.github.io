@@ -30,11 +30,7 @@
             left:5px;
         }
         
-        .alert {
-            position: absolute;
-            width: 450px;
-            right: 20px;
-        }
+
         
         .box {
             height: 400px;
@@ -83,4 +79,15 @@
 }
 .message-text{
     word-wrap: break-word;
+}
+.alert-container{
+    position: absolute;
+    top:0;
+    right: 10px;
+}
+.alert{
+    width: 450px;
+    position: absolute;
+    right: 10px;
+
 }

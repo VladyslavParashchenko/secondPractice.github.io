@@ -34,11 +34,10 @@
 <script>
     var button = document.querySelector('.btn-for-add-element');
     button.addEventListener('click', addContent);
-    var count = 1;
     function addContent() {
         var divElement = document.createElement('div');
         var container = document.querySelector("div#container");
-        switch(document.querySelector('.form-control').value){
+        switch(document.querySelector('select.form-control').value){
             case "top":
                 container.insertBefore(divElement,container.firstChild);
                 break;
@@ -46,15 +45,11 @@
                 container.appendChild(divElement);
                 break;
             case "middle":
-                var count2 = container.childNodes.length;
-                count2 = count2 % 2==0 ? (count2/2) : (count2+1)/2;
-                container.insertBefore(divElement,container.childNodes[count2]);
+                var count = (container.children.length/2).toFixed(0);
+                container.insertBefore(divElement,container.children[count]);
                 break;
-
         }
-        console.log();
-        divElement.innerHTML ='<div class="item"> <h4>Заголовок '+count+'</h4><p>текст текст текст</p></div>';
-        count++;
+        divElement.innerHTML ='<div class="item"> <h4>Заголовок '+(container.children.length)+'</h4><p>текст текст текст</p></div>';
 
     }
 </script>
@@ -122,39 +117,38 @@ Alert должен плавно появляться в верхнем прав�
     function Messages(){
         var top=10;
         var count=0;
-        var marginBetweenMessage =10;
+        var marginBetweenMessage = 10;
         var messages=[];
+        var container;
         this.addMessage = function(type,text){
+            container = document.querySelector('.alert-container');
             var alertMessage = document.createElement('div');
             alertMessage.className = type;
             var b ='<a href="#" class="close m'+count+'" onclick="removeMessage(this)" title="close">&times;</a><strong></strong><p class="message-text">'+text+'</p>';
             alertMessage.innerHTML = b;
             alertMessage.style.top=top+'px';
-            document.body.appendChild(alertMessage);
+            container.appendChild(alertMessage);
             var obj={
                 htmlElement:alertMessage,
                 height:alertMessage.offsetHeight
             };
+            obj.timeOut = deleteAfterTime(count,this);
             messages.push(obj);
-            deleteAfterTime(count,this);
             count++;
             top+=alertMessage.offsetHeight+marginBetweenMessage;
         };
         this.removeMessages = function (index){
-            document.body.removeChild(messages[index].htmlElement);
+            container.removeChild(messages[index].htmlElement);
             top-=messages[index].height+marginBetweenMessage;
             for(var i = index+1; i < messages.length; i++) {
                 var preventTop = parseInt(messages[i].htmlElement.style.top);
                 messages[i].htmlElement.style.top = (preventTop - messages[index].height - marginBetweenMessage) + 'px';
-                //messages[i-1]=messages[i];
             }
-            //messages.pop();
-            //count--;
-
-
-        }
+            clearTimeout(messages[index].timeOut);
+            delete messages[index];
+        };
         var deleteAfterTime = function (index,context){
-            setTimeout(function (){
+            return setTimeout(function (){
                 try{
                     context.removeMessages(index);
                 }catch(e){
@@ -165,6 +159,7 @@ Alert должен плавно появляться в верхнем прав�
     }
     var messageController = new Messages();
     var buttons = document.querySelectorAll('button.btn-for-add-message');
+
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener('click',function  () {
             var type = 'alert alert-'+this.innerHTML.toLowerCase();
@@ -285,6 +280,7 @@ Alert должен плавно появляться в верхнем прав�
   <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
 </div>
 -->
+<div class="alert-container"></div>
 </body>
 </html>
 
