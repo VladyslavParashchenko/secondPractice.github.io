@@ -28,6 +28,7 @@
             position: absolute;
             top: 120px;
             left:5px;
+            transition: left 5s linear;
         }
         
 
@@ -70,9 +71,8 @@
     width:64px;
     height:64px;
     position: fixed;
-    top:400px;
     display: none;
-    z-index:30;
+    z-index:300;
 }
 .move{
     border:1px solid white;
@@ -83,11 +83,19 @@
 .alert-container{
     position: absolute;
     top:0;
-    right: 10px;
+    right:10px;
 }
 .alert{
     width: 450px;
-    position: absolute;
-    right: 10px;
+    margin-top: 5px;
+}
 
+.move-right {
+    left: calc(100% - 100px);
+}
+.move-left {
+    left: calc(100px);
+}
+.hidden-class {
+    display: none;
 }
