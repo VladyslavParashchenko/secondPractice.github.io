@@ -8,6 +8,9 @@
         <link rel='stylesheet' href="style.css">    
 </head>
 <body>
+<div class="my-class hidden-class"  id="message_template">
+    <a href="#" title="close">&times;</a><strong></strong><p class="message-text"></p>
+</div>
 <ol class="tasks">
     <li>
 
@@ -34,11 +37,10 @@
 <script>
     var button = document.querySelector('.btn-for-add-element');
     button.addEventListener('click', addContent);
-    var count = 1;
     function addContent() {
         var divElement = document.createElement('div');
         var container = document.querySelector("div#container");
-        switch(document.querySelector('.form-control').value){
+        switch(document.querySelector('select.form-control').value){
             case "top":
                 container.insertBefore(divElement,container.firstChild);
                 break;
@@ -46,15 +48,10 @@
                 container.appendChild(divElement);
                 break;
             case "middle":
-                var count2 = container.childNodes.length;
-                count2 = count2 % 2==0 ? (count2/2) : (count2+1)/2;
-                container.insertBefore(divElement,container.childNodes[count2]);
+                container.insertBefore(divElement,container.children[Math.round(container.children.length/2)]);
                 break;
-
         }
-        console.log();
-        divElement.innerHTML ='<div class="item"> <h4>Заголовок '+count+'</h4><p>текст текст текст</p></div>';
-        count++;
+        divElement.innerHTML ='<div class="item"> <h4>Заголовок '+(container.children.length)+'</h4><p>текст текст текст</p></div>';
 
     }
 </script>
@@ -70,34 +67,14 @@
 <div class="play"></div>
 
 <script>
-var isCircleMove = false;
-var interval;
+    var circleClassName = document.querySelector('.play').className;
 document.querySelector('.btn-for-move-circle').addEventListener('click',moveCircle);
 function moveCircle(){
     var circle = document.querySelector('.play');
-    clearInterval(interval);
-    if(isCircleMove){
-        interval = getInterval(-1,function () {
-            isCircleMove = false;return parseInt(circle.offsetLeft)<0;},circle);
-
-    }else{
-        interval = getInterval(1, function (){
-            var circleWidth = parseInt(getComputedStyle(circle).width);
-            isCircleMove = true;
-            return document.documentElement.clientWidth-circleWidth<(parseInt(circle.offsetLeft)+circleWidth);
-        },circle);
-    }
+    circle.className = circle.className.indexOf('move-right')==-1 ? circleClassName+' move-right':circleClassName+' left';
 
 }
-function getInterval (side,compare,circle){
-    return setInterval(function (){
-        if(compare()){
-            clearInterval(interval);
-        }else{
-            circle.style.left =(parseInt(circle.offsetLeft)+side)+'px';
-        }
-    },5);
-}
+
 </script>
 
     </li>
@@ -120,52 +97,49 @@ Alert должен плавно появляться в верхнем прав�
 
 <script>
     function Messages(){
-        var top=10;
         var count=0;
-        var marginBetweenMessage =10;
         var messages=[];
+        var container;
+        var template = document.querySelector('#message_template').innerHTML;
         this.addMessage = function(type,text){
-            var alertMessage = document.createElement('div');
-            alertMessage.className = type;
-            var b ='<a href="#" class="close m'+count+'" onclick="removeMessage(this)" title="close">&times;</a><strong></strong><p class="message-text">'+text+'</p>';
-            alertMessage.innerHTML = b;
+            container = document.querySelector('.alert-container');
 
-            alertMessage.style.top=top+'px';
-            document.body.appendChild(alertMessage);
+            var alertMessage = document.createElement('div');
+            alertMessage.innerHTML = template;
+            var a = alertMessage.querySelector('a');
+            a.className='close m'+count;
+            a.onclick=removeMessage;
+            alertMessage.className = type;
+            alertMessage.querySelector('p').innerHTML=text;
+            if(text===''){
+                alertMessage.querySelector('p').style.padding='10px';
+            }
+            container.appendChild(alertMessage);
             var obj={
                 htmlElement:alertMessage,
-                height:alertMessage.offsetHeight
+                timeOut: deleteAfterTime(count,this)
             };
             messages.push(obj);
-            deleteAfterTime(count,this);
             count++;
-            top+=alertMessage.offsetHeight+marginBetweenMessage;
         };
         this.removeMessages = function (index){
-            document.body.removeChild(messages[index].htmlElement);
-            top-=messages[index].height+marginBetweenMessage;
-            for(var i = index+1; i < messages.length; i++) {
-                var preventTop = parseInt(messages[i].htmlElement.style.top);
-                messages[i].htmlElement.style.top = (preventTop - messages[index].height - marginBetweenMessage) + 'px';
-                //messages[i-1]=messages[i];
-            }
-            //messages.pop();
-            //count--;
-
-
-        }
+            container.removeChild(messages[index].htmlElement);
+            clearTimeout(messages[index].timeOut);
+            delete messages[index];
+        };
         var deleteAfterTime = function (index,context){
-            setTimeout(function (){
+            return setTimeout(function (){
                 try{
                     context.removeMessages(index);
                 }catch(e){
                     console.log(e.message);
                 }
-            },3000);
+            },10000);
         }
     }
     var messageController = new Messages();
-    var buttons = document.querySelectorAll('button.btn-for-add-message');
+    var buttons = document.querySelectorAll('.btn-for-add-message');
+
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener('click',function  () {
             var type = 'alert alert-'+this.innerHTML.toLowerCase();
@@ -173,49 +147,12 @@ Alert должен плавно появляться в верхнем прав�
             messageController.addMessage(type,text);
         });
     }
-    function removeMessage(element){
-        var messageNumber = element.className.split(' ').pop();
+    function removeMessage(){
+        var messageNumber = this.className.split(' ').pop();
         messageNumber = messageNumber.substr(1);
         messageController.removeMessages(+messageNumber);
 
     }
-    /*var top1=10;
-    var countOfMessage=0;
-    var heightOfMessage = 60;
-
-
-            deleteAfterTime(alertMessage);
-            document.body.appendChild(alertMessage);
-        });
-        function removeMessage (el) {
-            var number = el.parentElement.className.split(' ').pop();
-            number = number.substr(1);
-            document.body.removeChild(el.parentElement);
-            top1-=heightOfMessage;
-            upMessage(number);
-        }
-        function deleteAfterTime (element){
-            setTimeout(function (){
-                try{
-                    document.body.removeChild(element);
-                }catch(e){
-                    console.log(e.message);
-                }
-                var number = element.className.split(' ').pop();
-                number = number.substr(1);
-                upMessage(number);
-                top1-=heightOfMessage;
-
-            },10000);
-        }
-        function upMessage(number) {
-            var messages = document.querySelectorAll('.message');
-            for(var i = +number; i < messages.length; i++){
-                messages[i].style.top = (-heightOfMessage)+'px';
-            }
-            countOfMessage--;
-        }
-    }*/
 </script>
     </li>
     <li>
@@ -227,29 +164,39 @@ Alert должен плавно появляться в верхнем прав�
 <br />
 <script>
     var scrolled;
+    var time = 30;
+    window.addEventListener('resize',changeButtonUpPosition);
     var intervalForScroll;
     var buttonUp = document.querySelector('.scroll-page');
     window.onscroll = function () {
          scrolled = window.pageYOffset || document.documentElement.scrollTop;
-        if(scrolled>window.innerHeight){
-                buttonUp.style.display='block';
-                buttonUp.style.top=window.innerHeigh/2+'px';
+        if(scrolled>=window.innerHeight){
+            buttonUp.style.display='block';
+            changeButtonUpPosition();
         }else{
             buttonUp.style.display='none';
         }
     }
     function scrollPage () {
         clearInterval(intervalForScroll);
-        intervalForScroll = setInterval( function () {
         scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        var speed = -scrolled/time;
+        intervalForScroll = setInterval( function () {
             if(scrolled <= 0){
-                clearInterval(intervalForScroll);   
-                console.log('clear');
+                clearInterval(intervalForScroll);
             }else{
-                window.scrollBy(0,-5);
-                console.log(scrolled);
+                window.scrollBy(0,speed);
+                speed-=0.5;
             }
-        },20);
+        },time);
+    }
+    function changeButtonUpPosition() {
+        var buttonUp = document.querySelector('.scroll-page');
+        if(window.innerHeight<=200){
+            buttonUp.style.top = Math.round(parseInt(window.innerHeight)*0.3)+'px';
+        }else {
+            buttonUp.style.top = Math.round(parseInt(window.innerHeight) * 0.7) + 'px';
+        }
     }
 </script>
     </li>
@@ -267,63 +214,12 @@ Alert должен плавно появляться в верхнем прав�
 </div>
 
 <script>
-    /*window.onload = function (){
-        var draggableElements = document.querySelectorAll('.dragable');
-        for(var i = 0; i < draggableElements.length; i++ ){
-            draggableElements[i].addEventListener('mousedown',mouseDownEvent);
-            draggableElements[i].addEventListener('mousemove',mouseMoveEvent);
-            draggableElements[i].addEventListener('mouseup',mouseUpEvent);
-        }
-    }
-    var defaultX,defaultY;
-    var dragableElement;
-    var isMove=false;
-    function mouseDownEvent() {
-        defaultX = parseInt(this.style.left);
-        defaultY = parseInt(this.style.top);
-        dragableElement = this;
-        this.className +=' move';
-        isMove = true;
-    }  
-    function mouseMoveEvent() {
-        if(isMove){
-        console.log('move');
-        var x=defaultX - event.clientX;
-        this.style.left=defaultX+x+'px';
-        defaultX = parseInt(this.style.left);
-        console.log(x);
-        this.style.top=defaultY+'px';
-            isMove=false;
-        }
-    }
-    function mouseUpEvent(e) {
-        dragableElement=null;
-    }*/
 </script>
     </li>
 </ol>
 <br><br><br>
-<!--
-<div class="alert alert-success" style="top: 10px">
-  <a href="#" class="close" title="close">&times;</a>
-  <strong>Success!</strong> Indicates a successful or positive action.
-</div>
+<div class="alert-container"></div>
 
-<div class="alert alert-info" style="top: 70px">
-  <a href="#" class="close" title="close">&times;</a>
-  <strong>Info!</strong> Indicates a neutral informative change or action. With long long text
-</div>
-
-<div class="alert alert-warning" style="top: 150px">
-  <a href="#" class="close" title="close">&times;</a>
-  <strong>Warning!</strong> Indicates a warning that might need attention.
-</div>
-
-<div class="alert alert-danger" style="top: 210px">
-  <a href="#" class="close" title="close">&times;</a>
-  <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
-</div>
--->
 </body>
 </html>
 

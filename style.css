@@ -28,13 +28,10 @@
             position: absolute;
             top: 120px;
             left:5px;
+            transition: left 5s linear;
         }
         
-        .alert {
-            position: absolute;
-            width: 450px;
-            right: 20px;
-        }
+
         
         .box {
             height: 400px;
@@ -74,11 +71,33 @@
     width:64px;
     height:64px;
     position: fixed;
-    z-index:3;
+    display: none;
+    z-index:300;
+    left: calc(100% - 100px) !important;
 }
 .move{
     border:1px solid white;
 }
 .message-text{
     word-wrap: break-word;
+}
+.alert-container{
+    position: absolute;
+    top:0;
+    right:10px;
+    padding-top: 3px;
+}
+.alert{
+    width: 450px;
+    margin: 10px 0;
+}
+
+.move-right {
+    left: calc(100% - 100px);
+}
+.move-left {
+    left: calc(100px);
+}
+.hidden-class {
+    display: none;
 }
