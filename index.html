@@ -162,9 +162,9 @@ Alert должен плавно появляться в верхнем прав�
     window.onscroll = function () {
          scrolled = window.pageYOffset || document.documentElement.scrollTop;
         if(scrolled>=window.innerHeight){
-            buttonUp.style.display='block';
+            buttonUp.classList.remove('hidden');
         }else{
-            buttonUp.style.display='none';
+            buttonUp.classList.add('hidden');
         }
     }
     function scrollPage () {
