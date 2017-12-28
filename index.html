@@ -86,18 +86,16 @@ Alert должен плавно появляться в верхнем прав�
 
 <input type="text" class="form-control text-for-message">
 
-<button class="button btn btn-success btn-for-add-message">Success</button>
-<button class="button btn btn-info btn-for-add-message">Info</button>
-<button class="button btn btn-warning btn-for-add-message">Warning</button>
-<button class="button btn btn-danger btn-for-add-message">Danger</button>
-
-
+<button class="button btn btn-success btn-for-add-message" data-type='alert alert-success'>Success</button>
+<button class="button btn btn-info btn-for-add-message" data-type='alert alert-info'>Info</button>
+<button class="button btn btn-warning btn-for-add-message" data-type='alert alert-warning'>Warning</button>
+<button class="button btn btn-danger btn-for-add-message" data-type='alert alert-danger'>Danger</button>
 <script>
     function Messages(){
         var messages=[];
         var container;
         var template = document.querySelector('#message_template');
-        this.addMessage = function(type,text){
+        this.addMessage = function(type,text,title){
             container = document.querySelector('.alert-container');
             var alertMessage= template.cloneNode(true);
             var a = alertMessage.querySelector('a');
@@ -106,9 +104,7 @@ Alert должен плавно появляться в верхнем прав�
             alertMessage.className = type;
             alertMessage.id = '';
             alertMessage.querySelector('p').innerHTML=text;
-            if(text===''){
-                alertMessage.querySelector('p').style.padding='10px';
-            }
+            alertMessage.querySelector('strong').innerHTML=title;
             var obj={
                 htmlElement:alertMessage,
                 timeOut: deleteAfterTime(container.children.length,this)
@@ -134,9 +130,10 @@ Alert должен плавно появляться в верхнем прав�
     var messageController = new Messages();
     [].forEach.call(document.querySelectorAll('.btn-for-add-message'), function(button) {
         button.addEventListener('click',function  () {
-            var type = 'alert alert-'+this.innerHTML.toLowerCase();
+            var type = this.dataset.type;
             var text = document.querySelector('.text-for-message').value;
-            messageController.addMessage(type,text);
+            var title = this.innerHTML;
+            messageController.addMessage(type,text,title);
         })
     });
     function removeMessage(){
@@ -152,15 +149,17 @@ Alert должен плавно появляться в верхнем прав�
 Сделать кнопочку <i class="text-info">scroll to top</i>, она должна появляться когда пользователь проскролил страницу на размер одного видимого экрана.
 Кнопочку нужно аккуратно стилизовать.
 </h4>
-        <button class="btn btn-success scroll-page" style="left: 1151px;" onclick="scrollPage()">↑</button>
+        <button class="btn btn-success scroll-page hidden"  onclick="scrollPage()">↑</button>
 <br />
 <script>
-    var scrolled;
+    
     var time = 30;
     var intervalForScroll;
-    var buttonUp = document.querySelector('.scroll-page');
     window.onscroll = function () {
-         scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        var buttonUp = document.querySelector('.scroll-page');
+        buttonUp.classList.remove('hidden');
+         var scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        console.log(scrolled+'=>'+window.innerHeight);    
         if(scrolled>=window.innerHeight){
             buttonUp.classList.remove('hidden');
         }else{
@@ -169,7 +168,7 @@ Alert должен плавно появляться в верхнем прав�
     }
     function scrollPage () {
         clearInterval(intervalForScroll);
-        scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        var scrolled = window.pageYOffset || document.documentElement.scrollTop;
         var speed = -scrolled/time;
         intervalForScroll = setInterval( function () {
             if(scrolled <= 0){

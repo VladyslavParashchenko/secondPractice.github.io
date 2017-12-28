@@ -72,7 +72,7 @@
     height:64px;
     position: fixed;
     z-index:300;
-    left: calc(100% - 100px) !important;
+    left: calc(100% - 100px);
     top:80%;
 }
 .move{
