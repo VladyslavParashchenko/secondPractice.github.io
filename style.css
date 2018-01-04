@@ -38,6 +38,7 @@
             background-color: #e1e2e3;
             border-color: #000;
             position: relative;
+            padding: 10px;
         }
         .dragable {
             position: absolute;
@@ -98,6 +99,7 @@
 .hidden-class {
     display: none;
 }
+
 @media screen and (max-height: 400px) {
     .scroll-page{
         top:70%;

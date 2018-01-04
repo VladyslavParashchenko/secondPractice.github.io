@@ -12,7 +12,7 @@
     <a href="#" title="close">&times;</a><strong></strong><p class="message-text"></p>
 </div>
 <ol class="tasks">
-    <li>
+    <li class='task task-1'>
 
 <h4>
 При нажатии на кнопку, добавлять в <code>div</code> с идентификатором <code>container</code> фрагмент разметки в выбраную позицию.
@@ -57,7 +57,7 @@
 </script>
 
     </li>
-    <li style="height: 220px">
+    <li style="height: 220px" class='task task-2'>
 
 <h4>При нажатии на ссылку, равномерно перемещать HTML-элемент с классом <code>play</code> вправо, при повторном нажатии - перемещать влево.</h4>
 <br />
@@ -75,7 +75,7 @@ document.querySelector('.btn-for-move-circle').addEventListener('click',function
 </script>
 
     </li>
-    <li>
+    <li class='task task-3'>
 <h4>При нажатии на кнопку выдавать bootstrap-alert соответствующего типа c текстом из поля ввода.
 HTML код всплывающих элементов можно посмотреть по <a href="https://www.w3schools.com/bootstrap/bootstrap_alerts.asp">ссылке</a>.
 Alert должен плавно появляться в верхнем правом углу, при нажатии на крестик - исчезать. Так же alert'ы должны закрываться автоматичесски через 10 секунд.
@@ -144,7 +144,7 @@ Alert должен плавно появляться в верхнем прав�
     }
 </script>
     </li>
-    <li>
+    <li class='task task-4'>
 <h4><b class="h2 text-danger">*</b>
 Сделать кнопочку <i class="text-info">scroll to top</i>, она должна появляться когда пользователь проскролил страницу на размер одного видимого экрана.
 Кнопочку нужно аккуратно стилизовать.
@@ -171,6 +171,7 @@ Alert должен плавно появляться в верхнем прав�
         var scrolled = window.pageYOffset || document.documentElement.scrollTop;
         var speed = -scrolled/time;
         intervalForScroll = setInterval( function () {
+            var scrolled = window.pageYOffset || document.documentElement.scrollTop;
             if(scrolled <= 0){
                 clearInterval(intervalForScroll);
             }else{
@@ -181,7 +182,7 @@ Alert должен плавно появляться в верхнем прав�
     }
 </script>
     </li>
-    <li class='task-5'>
+    <li class='task task-5'>
 <h4><b class="h2 text-danger">**</b>
 Реализовать перемещение элементов внутри контейнера. Элементы нельзя ставить ближе <i class="text-info">10px</i> к границе контейнера.
 Во время перемещения элемента ему должен присваиваться класс <code>move</code>. Перетаскивание эелементов должно так де работать и на мобильных устройствах.</h4>
@@ -191,10 +192,62 @@ Alert должен плавно появляться в верхнем прав�
 <div class="dragable red" style="left: 250px;top: 28px;"></div>
 <div class="dragable green" style="left: 50px;top: 68px;"></div>
 <div class="dragable blue" style="left: 350px;top: 287px;"></div>
-<div class="dragable purple move" style="left: 70px;top: 28px;"></div>
+<div class="dragable purple" style="left: 70px;top: 28px;"></div>
 </div>
 
 <script>
+    [].forEach.call(document.querySelectorAll('.dragable'), function (dragableElement){
+       dragableElement.addEventListener('mousedown',function (e){
+           this.classList.add('move');
+           this.style.zIndex = 100;
+           var currentElement = this;
+           var coords = getCoodinate(this);
+           var shiftX = e.pageX - coords.left;
+           var shiftY = e.pageY - coords.top;
+           this.style.position='absolute';
+           document.body.appendChild(this);
+           var obj = document.querySelector('.box').getBoundingClientRect();
+          moveAt(e,obj,950);
+           this.style.zIndex=1000;
+           function moveAt(e,obj,top){
+               console.log(obj);
+               if((e.pageX - shiftX < obj.right-60)&&(e.pageX - shiftX > obj.left+10)){
+                  currentElement.style.left = e.pageX - shiftX + 'px'; 
+               }
+                console.log(top);
+               if(((e.pageY - shiftX) > top+60)&&((e.pageY - shiftX) < top+obj.height-60)){
+                   console.log(e.pageY - shiftX);
+                   currentElement.style.top = e.pageY - shiftY + 'px';
+               }
+           }
+            document.querySelector('.box').onmousemove = function (e){
+                var obj = this.getBoundingClientRect();
+                var tasks = document.querySelectorAll('.task');
+                var top=0;
+                for(var i = 0; i < tasks.length - 1; i++){
+                    top+=tasks[i].offsetTop;
+                }
+                var top = pageYOffset+this.offsetTop;
+                moveAt(e,obj,top);
+            }
+           this.onmouseup = function (){
+               document.querySelector('.box').onmousemove = null;
+               currentElement.onmouseup = null;
+               this.classList.remove('move');
+           }
+           currentElement.ondragstart = function(){
+               return false;
+           }
+           
+       });
+    function getCoodinate(elem){
+        var box = elem.getBoundingClientRect();
+        return {
+            top: box.top + pageYOffset,
+            left: box.left + pageXOffset
+        };
+    }
+    });
 </script>
     </li>
 </ol>
