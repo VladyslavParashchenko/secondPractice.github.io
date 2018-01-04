@@ -153,7 +153,7 @@ Alert должен плавно появляться в верхнем прав�
 <br />
 <script>
     
-    var time = 30;
+    
     var intervalForScroll;
     window.onscroll = function () {
         var buttonUp = document.querySelector('.scroll-page');
@@ -167,6 +167,7 @@ Alert должен плавно появляться в верхнем прав�
         }
     }
     function scrollPage () {
+		var time = 30;
         clearInterval(intervalForScroll);
         var scrolled = window.pageYOffset || document.documentElement.scrollTop;
         var speed = -scrolled/time;
